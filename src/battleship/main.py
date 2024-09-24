@@ -3,10 +3,12 @@ This file serves as the main game entrypoint.
 It takes the number of ships to play the game with from the
 user, validates input, and the starts the gameplay loop.
 """
-
+import sys
 from game import Game
 
 def main():
+
+    print(sys.argv[1])
     while True:
         try:
             #If something that cant be interpreated as an int is input, a ValueError will be raised.
