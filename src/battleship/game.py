@@ -16,6 +16,9 @@ from getpass import getpass
 
 #import player class.
 from player import Player
+from ai import Ai
+import random
+import string
 
 #import ship class.
 from ship import Ship
@@ -50,16 +53,114 @@ class Game:
         print('================\nWelcome Player 2\n================')
         
         #get player name.
-        player_two_name: str = input('What\'s your name? ')
+        player_two_name: str = input('What\'s your name? Enter \'ai\' to play against an ai: ')
+        if player_two_name.lower() != 'ai':
+            self._player_two_pass: str = getpass('Enter your password: ')
+            self._player_two: Player = Game._build_player(player_two_name, num_ships)
+        else:
+            difficulty = input('Enter ai difficulty level: ')
+            self._player_two: Ai = Game._build_ai_player(player_two_name, num_ships, difficulty)
+
+
 
         #get player password.
-        self._player_two_pass: str = getpass('Enter your password: ')
 
         #build player 2 object.
-        self._player_two: Player = Game._build_player(player_two_name, num_ships)
 
         #this clears the screen: https://stackoverflow.com/questions/2084508/clear-the-terminal-in-python
         os.system('cls' if os.name == 'nt' else 'clear')
+
+
+    @staticmethod
+    def _build_ai_player(name: str, num_ships: int, difficulty=0):
+        def generate_random_coordinate():
+            letter = random.choice(string.ascii_uppercase[:10])  # Picks a random letter from A to J
+            number = random.randint(1, 9)  # Picks a random number between 1 and 9
+            return f"{letter}{number}"
+        
+        def get_neighbors(coordinate, distance=1):
+            # Extract the letter and number from the coordinate
+            letter = coordinate[0]
+            number = int(coordinate[1:])
+
+            # Get all possible letters and numbers
+            letters = string.ascii_uppercase[:10]
+            letter_idx = letters.index(letter)
+
+            # Store valid neighbors within the specified distance
+            neighbors = []
+
+            # Horizontal neighbors
+            for i in range(1, distance + 1):
+                if letter_idx - i >= 0:  # Left neighbor
+                    neighbors.append(f"{letters[letter_idx - i]}{number}")
+                if letter_idx + i < 10:  # Right neighbor
+                    neighbors.append(f"{letters[letter_idx + i]}{number}")
+
+            # Vertical neighbors
+            for i in range(1, distance + 1):
+                if number - i >= 1:  # Downward neighbor
+                    neighbors.append(f"{letter}{number - i}")
+                if number + i <= 9:  # Upward neighbor
+                    neighbors.append(f"{letter}{number + i}")
+
+            return neighbors
+
+        def generate_random_neighbor(coordinate, distance=1):
+            neighbors = get_neighbors(coordinate, distance)
+            if neighbors:
+                return random.choice(neighbors)
+            return None
+
+        player : Ai = Ai(difficulty)
+        # Initialize the ship length to 0
+        ship_length: int = 0
+        # Ask the user for the coordinates of each ship
+        for _ in range(num_ships):
+            
+            ship_length += 1
+
+            while True:
+
+                player.display_board_private()
+
+                try:
+                    # If the ship length is 1, only ask for one coordinate
+                    if ship_length == 1:
+                        coord_input = generate_random_coordinate()
+                        # Convert the input to a tuple of ints (row, col)
+                        start_coord = Game._parse_coordinate(coord_input)
+                        # Since it's a 1-length ship, start and end are the same
+                        end_coord = start_coord  
+                    else:
+                        start_coord_input = generate_random_coordinate()
+                        # Convert the input to a tuple of ints (row, col)
+                        start_coord = Game._parse_coordinate(start_coord_input)
+
+                        # Get the ending coordinate for the ship
+                        end_coord_input = generate_random_neighbor(start_coord_input, ship_length-1)
+                        # Convert the input to a tuple of ints (row, col)
+                        end_coord = Game._parse_coordinate(end_coord_input)
+
+                    # Create a Ship object with the given coordinates
+                    ship: Ship = Ship(ship_length, start_coord, end_coord)
+                    
+                    try:
+                        player.add_ship(ship)
+            
+                    except ValueError:
+                        # If the ship intersects another ship, ask for coordinates again
+                        print('This placement intersects another ship, please try again.')
+                        continue
+
+                    break
+
+                except (InvalidShipLengthError, InvalidCoordinatesError) as e:
+                    # If the ship length is invalid or the coordinates are invalid, ask for coordinates again
+                    print(f'[ERROR] {e} Please try again.')
+                    continue
+
+        return player
 
     @staticmethod
     def _build_player(name: str, num_ships: int) -> Player:
@@ -160,7 +261,11 @@ class Game:
         #start with player 1
         current_player: Player = self._player_one 
         # start with player 2
-        opponent_player: Player = self._player_two
+        if isinstance(self._player_two, Ai):
+            opponent_player: Ai = self._player_two
+        else:
+            opponent_player: Player = self._player_two
+
         while True: #loop infinitely! (Until break is called)
             #password check
             self._check_pass(current_player)
