@@ -17,16 +17,30 @@
 
 import random
 import string
+from player import Player
+from ship import Ship
+from exceptions import AlreadyFiredError
 
-class Ai:
-    def __init__(self, difficulty):
+class Ai(Player):
+    def __init__(self, difficulty, ships: list[Ship] = None) -> None:
         self.difficulty = difficulty
-
+        
         if(difficulty == 1):
             self.hits = []
             self.near = []
         elif(difficulty == 2):
             self.enemy_coordinates = []
+
+        if ships is None:
+            self._ships = []
+        else:
+            self._ships: list[Ship] = ships
+
+        #hold the state of the board. the i,j entry of the board represents the if a shot has been fired at coordinate i,j.
+        #note that this contains NO information about whether that was a hit or a miss, that information is tracked by each ship.
+        self._board_state: list[list[bool]] = [ [ False for _ in range(10) ] for _ in range(10) ]
+
+        self._num_alive_ships: int = len(self._ships)
 
     # Returns as a string 
     def get_random_coordinate(self):
@@ -78,7 +92,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 
 
