@@ -5,7 +5,9 @@
 ---
 
 **Steve Gan**
- 
+
+9/27/24 - 1 hr
+- Implemented basic attack logic for easy AI
 ---
 
 **Sean Hammell**
