@@ -2,18 +2,63 @@
 
 # Easy (0) - fully random
 # Medium (1)
-    # self.hit[] - array of hits / current hit
-    # self.near[] - array of surrounding valid coordinates of a hit
+# self.hit[] - array of hits / current hit
+# self.near[] - array of surrounding valid coordinates of a hit
 
-    # If self.near is empty:
-    # Get random coordinate
-    # If it is a hit, append to self.hits[]
-        # Populate self.near[] with all of the valid surrounding coordinates
-    # In any other case, the first choice should be a coordinate from self.near[]
-    # After that coordinate is used, it should be removed from the array
+# If self.near is empty:
+# Get random coordinate
+# If it is a hit, append to self.hits[]
+# Populate self.near[] with all of the valid surrounding coordinates
+# In any other case, the first choice should be a coordinate from self.near[]
+# After that coordinate is used, it should be removed from the array
 
 # Hard (2) - has access to all enemy ship coordinates
-    # Array with all enemy coordinate pairs that is popped each turn
+# Array with all enemy coordinate pairs that is popped each turn
+
+"""
+Ai Class
+    def __init__
+        self.difficulty: int representing difficulty level
+        self.ships: list of Ships
+        self.num_alive_ships: int representing the number of active ships
+        self.attacks: list of previous attack coordinates
+
+        if difficulty == 1:
+            self.near: list of coordinates orthogonal to the most recent successful attack
+        elif difficulty == 2:
+            self.enemy_coordinates: list of enemy ship coordinates
+
+    def _get_random_coord():
+        While True:
+            coord = random
+            if coord not in self.attacks:
+                return coord
+
+    def attack()
+        coord = _get_random_coord()
+        match self.difficulty
+            case 0
+                self.attacks.append(coord)
+                return coord
+            case 1
+                if len(self.near) > 0
+                    coord = self.near[0]
+                    self.near = self.near[1:]
+
+                self.attacks.append(coord)
+                return coord
+            case 2
+                coord = self.enemy_coordinates[0]
+                self.enemy_coordinates = self.enemy_coordinates[1:]
+                return coord
+
+    def update_after_attack(coord, result)
+        if difficulty == 2
+            if not self.near and result == hit
+                _get_surrounding_coordinates(coord)
+            else if result == sink
+                self.near = []
+"""
 
 import random
 import string

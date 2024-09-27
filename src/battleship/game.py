@@ -267,6 +267,21 @@ class Game:
             opponent_player: Player = self._player_two
 
         while True: #loop infinitely! (Until break is called)
+            """
+            if isinstance(current_player, Ai):
+                attack_coord = current_player.attack
+                enemy_ships_pre_attack = opponent_player._num_alive_ships
+                hit = opponent_player.take_hit(attack_coord)
+                if hit:
+                    if opponent_player._num_alive_ships < enemy_ships_pre_attack:
+                        current_player.update_after_attack(attack_coord, sink)
+                    else:
+                        current_player.update_after_attack(attack_coord, hit)
+            else:
+                everything that's already written for a human player
+
+            still need to clear the screen and switch players at the end
+            """
             #password check
             self._check_pass(current_player)
         
