@@ -167,6 +167,20 @@ class Ai(Player):
                 if 1 <= new_row <= 10 and 0 <= new_col_index < len(valid_cols):
                     new_col = valid_cols[new_col_index]
                     self.near.append(f"{new_col}{new_row}")
+    
+    #returns a coordinate to attack based on the difficulty of the ai
+    def attack(self):
+        diff = self.difficulty
+        match self.difficulty:
+            case 0:
+                return self.get_random_coordinate()
+            case 1:
+                if len(self.near) > 0:
+                    coor = None
+            case 2:
+                coord = self.enemy_coordinates[0]
+                self.enemy_coordinates = self.enemy_coordinates[1:]
+                return coord
 
 
 

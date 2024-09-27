@@ -8,7 +8,7 @@ from game import Game
 
 def main():
 
-    print(sys.argv[1])
+    #print(sys.argv[1])
     while True:
         try:
             #If something that cant be interpreated as an int is input, a ValueError will be raised.

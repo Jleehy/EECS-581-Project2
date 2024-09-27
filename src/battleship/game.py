@@ -58,9 +58,11 @@ class Game:
             self._player_two_pass: str = getpass('Enter your password: ')
             self._player_two: Player = Game._build_player(player_two_name, num_ships)
         else:
-            difficulty = input('Enter ai difficulty level: ')
+            difficulty = int(input('Enter ai difficulty level. (0 - easy, 1 - medium, 2 - hard): '))
+            if not 0 <= difficulty <= 3:
+                raise ValueError
             self._player_two: Ai = Game._build_ai_player(player_two_name, num_ships, difficulty)
-
+            #self._player_two_pass: str = ""
 
 
         #get player password.
@@ -122,7 +124,7 @@ class Game:
 
             while True:
 
-                player.display_board_private()
+                #player.display_board_private()
 
                 try:
                     # If the ship length is 1, only ask for one coordinate
@@ -283,46 +285,57 @@ class Game:
             still need to clear the screen and switch players at the end
             """
             #password check
-            self._check_pass(current_player)
+            if not isinstance(current_player, Ai):
+                self._check_pass(current_player)
         
             while True:
-                print(f'================\nTURN {turn_count}\n================')
-                print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n================')
-                try:
-                    player_input: int = int(input('What would you like to do?: '))
+                #handle turn
+                if isinstance(current_player, Ai):
+                    coor = Game._parse_coordinate(current_player.attack())
+                    try:
+                        temp = opponent_player.take_hit(coor)
+                        break
+                    except (AlreadyFiredError, InvalidCoordinatesError) as e:
+                        print(e)#not necessary, handles random choosing same coor
+                else: 
+                    print(f'================\nTURN {turn_count}\n================')
+                    print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n================')
+                    try:
+                        player_input: int = int(input('What would you like to do?: '))
 
-                    if not 0 <= player_input <= 3:
-                        # If the input is not between 0 and 3, raise a ValueError
-                        raise ValueError
+                        if not 0 <= player_input <= 3:
+                            # If the input is not between 0 and 3, raise a ValueError
+                            raise ValueError
 
-                except ValueError:
-                    print('Invalid input, please choose off of the menu.')
-                    continue
+                    except ValueError:
+                        print('Invalid input, please choose off of the menu.')
+                        continue
 
-                match player_input:
-                    case 0:
-                        # Display the current player's board
-                        current_player.display_board_private()
-                    case 1:
-                        # Display the opponent's board
-                        opponent_player.display_board_public()
-                    case 2:
-                        try:
-                            # Get the coordinate to fire at
+                    match player_input:
+                        case 0:
+                            # Display the current player's board
+                            current_player.display_board_private()
+                        case 1:
+                            # Display the opponent's board
+                            #opponent_player.display_board_private()
                             opponent_player.display_board_public()
-                            coord_input = input(f'Enter a coordinate to fire (e.g., A1 or A,1): ').replace(' ', '').upper()
-                            # Convert the input to a tuple of ints (row, col)
-                            coord: tuple[int, int] = Game._parse_coordinate(coord_input)
-                            
-                            # Check if the shot hit a ship
-                            print('Hit!' if opponent_player.take_hit(coord) else 'Miss!')
-                            # Display the opponent's board after the shot
-                            opponent_player.display_board_public()
-                            input('Press ENTER to continue')
-                            break
+                        case 2:
+                            try:
+                                # Get the coordinate to fire at
+                                opponent_player.display_board_public()
+                                coord_input = input(f'Enter a coordinate to fire (e.g., A1 or A,1): ').replace(' ', '').upper()
+                                # Convert the input to a tuple of ints (row, col)
+                                coord: tuple[int, int] = Game._parse_coordinate(coord_input)
                                 
-                        except (AlreadyFiredError, InvalidCoordinatesError) as e:
-                            print(e)
+                                # Check if the shot hit a ship
+                                print('Hit!' if opponent_player.take_hit(coord) else 'Miss!')
+                                # Display the opponent's board after the shot
+                                opponent_player.display_board_public()
+                                input('Press ENTER to continue')
+                                break
+                                    
+                            except (AlreadyFiredError, InvalidCoordinatesError) as e:
+                                print(e)
 
 
             #check if either p1 or p2's ships are all destroyed
