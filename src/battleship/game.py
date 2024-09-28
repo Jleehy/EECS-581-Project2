@@ -55,8 +55,26 @@ class Game:
         #get player name.
         player_two_name: str = input('What\'s your name? Enter \'ai\' to play against an ai: ')
         if player_two_name.lower() != 'ai':
+            #get player password.
             self._player_two_pass: str = getpass('Enter your password: ')
+            #build player 2 object.
             self._player_two: Player = Game._build_player(player_two_name, num_ships)
+            # prompt for number of special shots to be played with
+
+            print('================\nSetup\n================')
+            while True:
+                try:
+                    self._num_special_shots: int = int(input('How many special shots would you like to play with (0-999): '))
+
+                except ValueError:
+                    print('Please input a number.')
+                    continue
+
+                if not 0 <= self._num_special_shots <= 999:
+                    print('Please input a number between 0 and 999.')
+                    continue
+
+                break
         else:
             difficulty = int(input('Enter ai difficulty level. (0 - easy, 1 - medium, 2 - hard): '))
             if not 0 <= difficulty <= 3:
@@ -65,13 +83,9 @@ class Game:
             #self._player_two_pass: str = ""
 
 
-        #get player password.
-
-        #build player 2 object.
-
+       
         #this clears the screen: https://stackoverflow.com/questions/2084508/clear-the-terminal-in-python
         os.system('cls' if os.name == 'nt' else 'clear')
-
 
     @staticmethod
     def _build_ai_player(name: str, num_ships: int, difficulty=0):

@@ -11,7 +11,7 @@ def main():
     #print(sys.argv[1])
     while True:
         try:
-            #If something that cant be interpreated as an int is input, a ValueError will be raised.
+            #If something that cant be interpreted as an int is input, a ValueError will be raised.
             num_ships: int = int(input('How many ships? (1-5): '))
 
         except ValueError:
@@ -21,12 +21,12 @@ def main():
             continue
         
         #reprompt the user if an invalid int is input.
-        if not 1 <= num_ships  <= 5:
+        if not 1 <= num_ships <= 5:
             print('Please input a number between 1 and 5.')
             continue
 
         break
-
+        
     Game(num_ships).loop()
 
 if __name__ == '__main__':
