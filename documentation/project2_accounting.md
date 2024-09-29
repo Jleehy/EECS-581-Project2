@@ -31,7 +31,7 @@
 
 9/26/24 - 2h
 
-- Made ai compatable with all player functions
+- Made ai compatable with player class
 - Updated game loop to account for ai
 - Added functions for building ai players
 - Minor attack logic changes
