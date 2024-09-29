@@ -33,9 +33,9 @@
 
 **Mario Simental**
 
-9/28/24 - 1.25h
+9/28/24 - 2h
 
-- Started special shots logic
+- Implemented special shots logic
 
 ---
 
