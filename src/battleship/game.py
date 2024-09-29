@@ -61,7 +61,7 @@ class Game:
             difficulty = int(input('Enter ai difficulty level. (0 - easy, 1 - medium, 2 - hard): '))
             if not 0 <= difficulty <= 3:
                 raise ValueError
-            self._player_two: Ai = Game._build_ai_player(player_two_name, num_ships, difficulty)
+            self._player_two: Ai = Game._build_ai_player(player_two_name, num_ships, self._player_one, difficulty)
             #self._player_two_pass: str = ""
 
 
@@ -74,7 +74,7 @@ class Game:
 
 
     @staticmethod
-    def _build_ai_player(name: str, num_ships: int, difficulty=0):
+    def _build_ai_player(name: str, num_ships: int, opponent: Player, difficulty=0):
         def generate_random_coordinate():
             letter = random.choice(string.ascii_uppercase[:10])  # Picks a random letter from A to J
             number = random.randint(1, 9)  # Picks a random number between 1 and 9
@@ -114,7 +114,7 @@ class Game:
                 return random.choice(neighbors)
             return None
 
-        player : Ai = Ai(difficulty)
+        player : Ai = Ai(difficulty, opponent)
         # Initialize the ship length to 0
         ship_length: int = 0
         # Ask the user for the coordinates of each ship
@@ -291,12 +291,19 @@ class Game:
             while True:
                 #handle turn
                 if isinstance(current_player, Ai):
-                    coor = Game._parse_coordinate(current_player.attack())
+                    rawcoor = current_player.attack()
+                    coor = Game._parse_coordinate(rawcoor)
                     try:
-                        temp = opponent_player.take_hit(coor)
+                        temp = opponent_player.num_alive_ships
+                        if opponent_player.take_hit(coor):
+                            print('Your opponent hit you!')
+                            current_player.handleHit(rawcoor, temp != opponent_player.num_alive_ships)
+                        else:
+                            print('Your opponent missed you!')
+                        input('Press ENTER to continue')
                         break
                     except (AlreadyFiredError, InvalidCoordinatesError) as e:
-                        print(e)#not necessary, handles random choosing same coor
+                        continue
                 else: 
                     print(f'================\nTURN {turn_count}\n================')
                     print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n================')
@@ -328,13 +335,16 @@ class Game:
                                 coord: tuple[int, int] = Game._parse_coordinate(coord_input)
                                 
                                 # Check if the shot hit a ship
-                                print('Hit!' if opponent_player.take_hit(coord) else 'Miss!')
+                                if opponent_player.take_hit(coord):
+                                    print('Hit!') #print hit ahd call handleHit if it is a hit
+                                else:
+                                    print('Miss!') #print miss if the shot is a miss
                                 # Display the opponent's board after the shot
                                 opponent_player.display_board_public()
                                 input('Press ENTER to continue')
                                 break
                                     
-                            except (AlreadyFiredError, InvalidCoordinatesError) as e:
+                            except (AlreadyFiredError, InvalidCoordinatesError) as e: #error if already fired upon coordinate or if invalid coordinate
                                 print(e)
 
 

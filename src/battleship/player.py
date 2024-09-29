@@ -21,21 +21,25 @@ class Player:
 
         self._num_alive_ships: int = len(self._ships)
     
-    @property
+    @property #returns the name of the player
     def name(self) -> str:
         return self._name
 
-    @property
+    @property #returns the number of ships of the player
     def num_ships(self) -> int:
         return len(self._ships)
 
-    @property
+    @property #returns the number of ships still alive of the player
     def num_alive_ships(self) -> int:
         return self._num_alive_ships
 
-    @property
+    @property #returns the number of ships sunk of the player
     def num_sunk_ships(self) -> int:
         return self.num_ships - self.num_alive_ships
+    
+    @property #returns the location and status of the ships of the player
+    def ships(self):
+        return self._ships 
 
     def take_hit(self, coordinate: tuple[int, int]) -> bool:
         """Take a hit at the given coordinate and update the board state."""

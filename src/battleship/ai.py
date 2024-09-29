@@ -112,15 +112,20 @@ from ship import Ship
 from exceptions import AlreadyFiredError
 
 class Ai(Player):
-    def __init__(self, difficulty, ships: list[Ship] = None) -> None:
-        self.difficulty = difficulty
+    def __init__(self, difficulty, opponent, ships: list[Ship] = None) -> None:
+        self.difficulty = difficulty #difficulty of the ai
+        self.enemy_coordinates = [] #coordinates of the oposing players ships
         
         if(difficulty == 1):
             self.hits = []
             self.near = []
         elif(difficulty == 2):
-            self.enemy_coordinates = []
-
+            #for each coordinate in each ship in the opponent's list of ships, we add the coordinate to self._enemy_coordinates
+            for ship in opponent.ships:
+                for coor in ship.hull:
+                    temp = coor[:2]
+                    self.enemy_coordinates.append(temp)
+                    
         if ships is None:
             self._ships = []
         else:
@@ -155,8 +160,8 @@ class Ai(Player):
         # Iterate over each combination of row and column offsets
         for r_offset in row_offsets:
             for c_offset in col_offsets:
-                # Skip the original coordinate (0,0 offset)
-                if r_offset == 0 and c_offset == 0:
+                #Skip the digaonals and the center
+                if abs(r_offset) ^ abs(c_offset) == False:
                     continue
 
                 # Calculate the new row and column
@@ -172,21 +177,38 @@ class Ai(Player):
     def attack(self):
         diff = self.difficulty
         match self.difficulty:
+            #finds a coordinate to shoot at based on the difficulty of it ai
             case 0:
+                #returns a random coordinate
                 return self.get_random_coordinate()
             case 1:
                 if len(self.near) > 0:
-                    coor = None
+                    coor = self.near[0]
+                    self.near = self.near[1:]
+                    return coor
+                return self.get_random_coordinate()
             case 2:
+                #returns the coordinate of the first item in the enemy coordinates
                 coord = self.enemy_coordinates[0]
                 self.enemy_coordinates = self.enemy_coordinates[1:]
-                return coord
+                return string.ascii_uppercase[coord[1]]+str(coord[0] + 1)
+            
+    def handleHit(self, coor, sunk):
+        if self.difficulty == 1:
+            if sunk:
+                #clear self.near
+                self.near = []
+            else:
+                #handle surrounding coor
+                self.get_surrounding_coordinates(coor)
+                print("I am handling coordinates")
+                print(self.near)
 
 
 
 
 def main():
-    ai = Ai(1)
+    ai = Ai(1, None)
     coord = ai.get_random_coordinate()
     print(coord)
 
