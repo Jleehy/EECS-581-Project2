@@ -9,6 +9,7 @@ class Player:
     def __init__(self, name: str, ships: list[Ship] = None) -> None:
        
         self._name: str = name
+        self.num_special_shots: int = 0
 
         if ships is None:
             self._ships = []
@@ -62,7 +63,49 @@ class Player:
                         self._num_alive_ships -= 1
                     return True
         return False
-                
+
+    def take_special_hit(self, coordinate: tuple[int, int]) -> bool:
+        """
+        Handle a special 3x3 shot centered at `center_coord`.
+        The 3x3 shot affects the center and all valid adjacent cells.
+        """
+
+        row, col = coordinate
+
+        if self._board_state[row][col]:
+            raise AlreadyFiredError("You have already fired on this coordinate.")
+
+        self._board_state[row][col] = True
+
+        hit_anything = False
+
+        # Define the range for 3x3 area
+        # Reminder range upper is not inclusive hence + 2
+        for i in range(max(0, row - 1), min(10, row + 2)):  # Ensures rows stay within bounds
+            for j in range(max(0, col - 1), min(10, col + 2)):  # Ensures columns stay within bounds
+
+                # Mark this coordinate as fired upon
+                self._board_state[i][j] = True
+
+                # Check if any ship is hit
+                for ship in self._ships:
+                    # Check if the hit is on any ship
+                    for hull in ship.hull:
+                        # If the hit is on the ship
+                        if hull[:2] == (i,j):
+                            # Mark the hit on the ship
+                            ship.take_hit((i,j))
+                            # Check if the ship is sunk
+                            if ship.sunk:
+                                # Decrement the number of alive ships
+                                self._num_alive_ships -= 1
+                            hit_anything = True
+
+        return hit_anything
+    
+    def set_special_shots(self, num: int) -> None:
+        self.num_special_shots = num
+
     def _get_cell_state(self, i: int, j: int, private: bool) -> str:
         """Serve as a helper method to get the state of each cell for private and public boards."""
         # Check if the cell is part of any ship
