@@ -9,6 +9,7 @@ class Player:
     def __init__(self, name: str, ships: list[Ship] = None) -> None:
        
         self._name: str = name
+        self.num_special_shots: int = 0
 
         if ships is None:
             self._ships = []
@@ -97,6 +98,9 @@ class Player:
                             hit_anything = True
 
         return hit_anything
+    
+    def set_special_shots(self, num: int) -> None:
+        self.num_special_shots = num
     
     def _get_cell_state(self, i: int, j: int, private: bool) -> str:
         """Serve as a helper method to get the state of each cell for private and public boards."""
