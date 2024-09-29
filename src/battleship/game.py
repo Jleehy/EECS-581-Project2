@@ -37,6 +37,9 @@ class Game:
         #print welcome message.
         print('================\nWelcome Player 1\n================')
         
+        # init special shots
+        self._num_special_shots: int = 0
+
         #get player name.
         player_one_name: str = input('What\'s your name? ')
 
@@ -310,14 +313,19 @@ class Game:
                         print(e)#not necessary, handles random choosing same coor
                 else: 
                     print(f'================\nTURN {turn_count}\n================')
-                    print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n[3] FIRE SPECIAL SHOT\n================')
+                    if self._num_special_shots > 0:
+                        print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n[3] FIRE SPECIAL SHOT\n================')
+                        valid_choices = [0, 1, 2, 3]  
+                    else:
+                         print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n================')
+                         valid_choices = [0, 1, 2] 
                     try:
                         player_input: int = int(input('What would you like to do?: '))
 
-                        if not 0 <= player_input <= 3:
-                            # If the input is not between 0 and 3, raise a ValueError
+                        # Check if the input is valid based on available choices
+                        if player_input not in valid_choices:
                             raise ValueError
-
+                        
                     except ValueError:
                         print('Invalid input, please choose off of the menu.')
                         continue
