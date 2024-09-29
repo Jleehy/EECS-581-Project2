@@ -29,6 +29,10 @@
 
 **Mario Simental**
 
+9/28/24 - 1.25h
+
+- Started special shots logic
+
 ---
 
 **Matthew Sullivan**
