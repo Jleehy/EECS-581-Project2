@@ -24,7 +24,7 @@ import string
 from ship import Ship
 
 #import exception that denotes invalid ship length.
-from exceptions import InvalidShipLengthError, InvalidCoordinatesError, AlreadyFiredError
+from exceptions import InvalidShipLengthError, InvalidCoordinatesError, AlreadyFiredError, EmptySpecialShotsError
 
 class Game:
     """
@@ -57,6 +57,24 @@ class Game:
         if player_two_name.lower() != 'ai':
             self._player_two_pass: str = getpass('Enter your password: ')
             self._player_two: Player = Game._build_player(player_two_name, num_ships)
+            
+            print('================\nSetup\n================')
+            while True:
+                try:
+                    self._num_special_shots: int = int(input('How many special shots (3x3) would you like to play with (0-999): '))
+                except ValueError:
+                    print('Please input a number.')
+                    continue
+
+                if not 0 <= self._num_special_shots <= 999:
+                    print('Please input a number between 0 and 999.')
+                    continue
+
+                break
+
+            self._player_one.set_special_shots(self._num_special_shots)
+            self._player_two.set_special_shots(self._num_special_shots)
+
         else:
             difficulty = int(input('Enter ai difficulty level. (0 - easy, 1 - medium, 2 - hard): '))
             if not 0 <= difficulty <= 3:
@@ -306,14 +324,19 @@ class Game:
                         continue
                 else: 
                     print(f'================\nTURN {turn_count}\n================')
-                    print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n================')
+                    if current_player.num_special_shots > 0:
+                        print(f'[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n[3] FIRE SPECIAL SHOT ({current_player.num_special_shots}/{self._num_special_shots})\n================')
+                        valid_choices = [0, 1, 2, 3]  
+                    else:
+                         print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n================')
+                         valid_choices = [0, 1, 2] 
                     try:
                         player_input: int = int(input('What would you like to do?: '))
-
-                        if not 0 <= player_input <= 3:
-                            # If the input is not between 0 and 3, raise a ValueError
+                        
+                        # Check if the input is valid based on available choices
+                        if player_input not in valid_choices:
                             raise ValueError
-
+                        
                     except ValueError:
                         print('Invalid input, please choose off of the menu.')
                         continue
@@ -346,7 +369,27 @@ class Game:
                                     
                             except (AlreadyFiredError, InvalidCoordinatesError) as e: #error if already fired upon coordinate or if invalid coordinate
                                 print(e)
-
+                        case 3:
+                            try:
+                                # Get the coordinate to fire at
+                                opponent_player.display_board_public()
+                                coord_input = input(f'Enter a coordinate to fire a special shot (e.g., A1 or A,1): ').replace(' ', '').upper()
+                                # Convert the input to a tuple of ints (row, col)
+                                coord: tuple[int, int] = Game._parse_coordinate(coord_input)
+                                
+                                if not current_player.num_special_shots > 0:
+                                    raise EmptySpecialShotsError("You have no special shots remaining.")
+                            
+                                # Check if the shot hit a ship
+                                print('Hit!' if opponent_player.take_special_hit(coord) else 'Miss!')
+                                current_player.num_special_shots -= 1
+                                # Display the opponent's board after the shot
+                                opponent_player.display_board_public()
+                                input('Press ENTER to continue')
+                                break
+                                    
+                            except (AlreadyFiredError, InvalidCoordinatesError, EmptySpecialShotsError) as e:
+                                print(e)
 
             #check if either p1 or p2's ships are all destroyed
             #(possibly take this block and put it into its own function)
