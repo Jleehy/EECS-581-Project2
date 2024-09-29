@@ -2,6 +2,14 @@
 
 **Team**
 
+9/20/24 - .5h
+
+- Held a team meeting to discuss the project requirements, create a high-level project design, determine person-hour estimates, and assign tasks.
+
+9/26/24 - .25h
+
+- GTA meeting to discuss project progress.
+
 ---
 
 **Steve Gan**
