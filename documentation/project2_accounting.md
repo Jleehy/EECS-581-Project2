@@ -8,6 +8,10 @@
 
 9/27/24 - 1 hr
 - Implemented basic attack logic for easy AI
+
+9/28/24 - 2.5 hr
+- Created UML diagram for the special shot feature
+- Implemented the attack logic for medium and hard AI
 ---
 
 **Sean Hammell**
