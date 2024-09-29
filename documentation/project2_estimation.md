@@ -2,36 +2,33 @@
 
 | **Task** | **Estimate** |
 | -------- | ------------ |
-| Project Setup | 1 hour |
-| User Interface | 2 hours
-| Gameplay | 4 hours |
-| Documentation | 2 hours |
-| Daily Accounting | 1 hour |
-| **Total** | 10 hours |
+| Add Ai Functionality | 5 hour |
+| Add New Shot Feature | 2 hours |
+| Ensure Code Compatability | 4 hours |
+| Documentation | .5 hours |
+| Daily Accounting | .5 hour |
+| **Total** | 12 hours |
 
 ---
 
 **Development Tasks Breakdown**
 
-Project Setup
+Ai Functionality
 
-1. Game Loop Skeleton (30m)
-2. Board Matrix (30m)
+1. Ai Class Skeleton (2h)
+2. Ai Attack Levels (3h)
 
-User Interface
+New Shot Feature
 
-1. Board Drawing (45m)
-2. Ship Status Characters (15m)
-3. Player-Specific Board Displays (1h)
-4. User Input (15m)
+1. Logic Implementation (1h)
+2. Code Integration (1h)
 
-Gameplay
+Code Compatability
 
-1. Ship placement (1h)
-2. Attacks (1h)
-3. Switching Players (15m)
-4. End-Game Conditions (15m)
-5. Testing and Debugging (1.5h)
+1. Update Game Loop (1h)
+2. Add Ai Compatability to game.py (1.5h)
+4. Add Shot Compatability to player.py (1h)
+5. Update main.py (.5h)
 
 
 
