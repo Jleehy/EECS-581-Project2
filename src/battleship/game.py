@@ -64,8 +64,7 @@ class Game:
             print('================\nSetup\n================')
             while True:
                 try:
-                    self._num_special_shots: int = int(input('How many special shots would you like to play with (0-999): '))
-
+                    self._num_special_shots: int = int(input('How many special shots (3x3) would you like to play with (0-999): '))
                 except ValueError:
                     print('Please input a number.')
                     continue
@@ -82,8 +81,6 @@ class Game:
             self._player_two: Ai = Game._build_ai_player(player_two_name, num_ships, difficulty)
             #self._player_two_pass: str = ""
 
-
-       
         #this clears the screen: https://stackoverflow.com/questions/2084508/clear-the-terminal-in-python
         os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -313,7 +310,7 @@ class Game:
                         print(e)#not necessary, handles random choosing same coor
                 else: 
                     print(f'================\nTURN {turn_count}\n================')
-                    print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n================')
+                    print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n[3] FIRE SPECIAL SHOT\n================')
                     try:
                         player_input: int = int(input('What would you like to do?: '))
 
@@ -343,6 +340,23 @@ class Game:
                                 
                                 # Check if the shot hit a ship
                                 print('Hit!' if opponent_player.take_hit(coord) else 'Miss!')
+                                # Display the opponent's board after the shot
+                                opponent_player.display_board_public()
+                                input('Press ENTER to continue')
+                                break
+                                    
+                            except (AlreadyFiredError, InvalidCoordinatesError) as e:
+                                print(e)
+                        case 3:
+                            try:
+                                # Get the coordinate to fire at
+                                opponent_player.display_board_public()
+                                coord_input = input(f'Enter a coordinate to fire a special shot (e.g., A1 or A,1): ').replace(' ', '').upper()
+                                # Convert the input to a tuple of ints (row, col)
+                                coord: tuple[int, int] = Game._parse_coordinate(coord_input)
+                                
+                                # Check if the shot hit a ship
+                                print('Hit!' if opponent_player.take_special_hit(coord) else 'Miss!')
                                 # Display the opponent's board after the shot
                                 opponent_player.display_board_public()
                                 input('Press ENTER to continue')
