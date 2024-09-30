@@ -8,19 +8,19 @@ class Player:
 
     def __init__(self, name: str, ships: list[Ship] = None) -> None:
        
-        self._name: str = name
-        self.num_special_shots: int = 0
+        self._name: str = name  # record the Player's name
+        self.num_special_shots: int = 0  # record the number of special shots the Player has
 
-        if ships is None:
-            self._ships = []
-        else:
-            self._ships: list[Ship] = ships
+        if ships is None:  # if no ships were passed in
+            self._ships = []  # initialize ships to an empty list
+        else:  # otherwise
+            self._ships: list[Ship] = ships  # record the list of ships
 
         #hold the state of the board. the i,j entry of the board represents the if a shot has been fired at coordinate i,j.
         #note that this contains NO information about whether that was a hit or a miss, that information is tracked by each ship.
         self._board_state: list[list[bool]] = [ [ False for _ in range(10) ] for _ in range(10) ]
 
-        self._num_alive_ships: int = len(self._ships)
+        self._num_alive_ships: int = len(self._ships)  # all of the Player's ships are alive
     
     @property #returns the name of the player
     def name(self) -> str:
@@ -45,10 +45,10 @@ class Player:
     def take_hit(self, coordinate: tuple[int, int]) -> bool:
         """Take a hit at the given coordinate and update the board state."""
         
-        if self._board_state[coordinate[0]][coordinate[1]]:
-            raise AlreadyFiredError("You have already fired on this coordinate.")
+        if self._board_state[coordinate[0]][coordinate[1]]:  # if the coordinate has already been hit
+            raise AlreadyFiredError("You have already fired on this coordinate.")  # raise an error
 
-        self._board_state[coordinate[0]][coordinate[1]] = True
+        self._board_state[coordinate[0]][coordinate[1]] = True  # record the hit
 
         for ship in self._ships:
             # Check if the hit is on any ship
@@ -61,8 +61,8 @@ class Player:
                     if ship.sunk:
                         # Decrement the number of alive ships
                         self._num_alive_ships -= 1
-                    return True
-        return False
+                    return True  # return that the shot was a hit
+        return False  # return that the shot was a miss
 
     def take_special_hit(self, coordinate: tuple[int, int]) -> bool:
         """
@@ -70,14 +70,14 @@ class Player:
         The 3x3 shot affects the center and all valid adjacent cells.
         """
 
-        row, col = coordinate
+        row, col = coordinate  # parse the coordinate
 
-        if self._board_state[row][col]:
-            raise AlreadyFiredError("You have already fired on this coordinate.")
+        if self._board_state[row][col]:  # if the coordinate has already been hit
+            raise AlreadyFiredError("You have already fired on this coordinate.")  # raise an error
 
-        self._board_state[row][col] = True
+        self._board_state[row][col] = True  # record the hit
 
-        hit_anything = False
+        hit_anything = False  # initialize the hit flag to False
 
         # Define the range for 3x3 area
         # Reminder range upper is not inclusive hence + 2
@@ -101,9 +101,12 @@ class Player:
                                 self._num_alive_ships -= 1
                             hit_anything = True
 
-        return hit_anything
+        return hit_anything  # return if the special shot hit anything
     
     def set_special_shots(self, num: int) -> None:
+        """
+        Set the number of special shots.
+        """
         self.num_special_shots = num
 
     def _get_cell_state(self, i: int, j: int, private: bool) -> str:
@@ -132,8 +135,8 @@ class Player:
         print('    A B C D E F G H I J ') # Print top border labels.
         print('  +' + '-' * 21 + '+') # Top border
 
-        for i in range(10):
-            row: list[str] = [self._get_cell_state(i, j, private=True) for j in range(10)]
+        for i in range(10):  # for each row
+            row: list[str] = [self._get_cell_state(i, j, private=True) for j in range(10)]  # get the cell states in the row
             print(f"{i+1}{' ' if i+1 != 10 else ''}| {' '.join(row)} |") # Board with side borders & side border numbers
         
         print('  +' + '-' * 21 + '+') # Bottom border
@@ -143,8 +146,8 @@ class Player:
         print('    A B C D E F G H I J ') # Print top border labels.
         print(' +' + '-' * 21 + '+') # Top border
 
-        for i in range(10):
-            row: list[str] = [self._get_cell_state(i, j, private=False) for j in range(10)]
+        for i in range(10):  # for each row
+            row: list[str] = [self._get_cell_state(i, j, private=False) for j in range(10)]  # get the cell states in the row
             print(f"{i+1}{' ' if i+1 != 10 else ''}| {' '.join(row)} |") # Board with side borders & side boarder numbers
 
         print('  +' + '-' * 21 + '+') # Bottom border
@@ -158,7 +161,7 @@ class Player:
                 for x, y, _ in ship.hull:
                     #  If the coordinate of the ship is the same as the coordinate of another ship
                     if (x,y) == (other_x, other_y):
-                        raise ValueError('Placement intersects another ship.')
+                        raise ValueError('Placement intersects another ship.')  # raise an error
 
-        self._ships.append(ship)
-        self._num_alive_ships += 1
+        self._ships.append(ship)  # add the ship to the list of ships
+        self._num_alive_ships += 1  # increment the number of alive ships
