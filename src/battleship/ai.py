@@ -105,102 +105,120 @@ Ai Class
                 self.near = []
 """
 
-import random #import for random
-import string #import for strings
-from player import Player #import player
-from ship import Ship #import ship
-from exceptions import AlreadyFiredError #import errors
+import random
+import string
+from player import Player
+from ship import Ship
+from exceptions import AlreadyFiredError
 
-class Ai(Player): #Ai class that is a subclass of the player class
-    def __init__(self, difficulty, opponent, ships: list[Ship] = None) -> None: #constructor which takes a diffculty and opponent. Also handles ship creation.
+class Ai(Player):
+    def __init__(self, difficulty, opponent, ships: list[Ship] = None) -> None:
         self.difficulty = difficulty #difficulty of the ai
-        self._name = "AI" # name attribute for printing player info
         self.enemy_coordinates = [] #coordinates of the oposing players ships
+        self._name = "AI"
         
-        # hits[] = coordinates of hits
-        # near[] = valid coordinates surrounding the most recent hit
-        if(difficulty == 1): #if difficulty is 1
-            self.hits = [] #create hits array
-            self.near = [] #create near array
-        elif(difficulty == 2): #if difficulty is 2
+        if(difficulty == 1):
+            self.hits = []
+            self.near = []
+        elif(difficulty == 2):
             #for each coordinate in each ship in the opponent's list of ships, we add the coordinate to self._enemy_coordinates
-            for ship in opponent.ships: #iterate over opponent ships
-                for coor in ship.hull: #iterate over the opposing coordinates
-                    temp = coor[:2] #slice the coordinates as needed
-                    self.enemy_coordinates.append(temp) #append the slices coordinate
+            for ship in opponent.ships:
+                for coor in ship.hull:
+                    temp = coor[:2]
+                    self.enemy_coordinates.append(temp)
                     
-        if ships is None: #if no ships
-            self._ships = [] #set ships to empty list
-        else: #else
-            self._ships: list[Ship] = ships #set ships to list[ship] = ships
+        if ships is None:
+            self._ships = []
+        else:
+            self._ships: list[Ship] = ships
 
         #hold the state of the board. the i,j entry of the board represents the if a shot has been fired at coordinate i,j.
-        self._board_state: list[list[bool]] = [ [ False for _ in range(10) ] for _ in range(10) ] #note that this contains NO information about whether that was a hit or a miss, that information is tracked by each ship.
+        #note that this contains NO information about whether that was a hit or a miss, that information is tracked by each ship.
+        self._board_state: list[list[bool]] = [ [ False for _ in range(10) ] for _ in range(10) ]
 
-        self._num_alive_ships: int = len(self._ships) #set the number of alive ships using len
+        self._num_alive_ships: int = len(self._ships)
 
-    # Returns a string literal of a random coordinate on the board
-    def get_random_coordinate(self): #function to get random coordinate
-        col = random.choice(string.ascii_uppercase[:10]) #take a random choice of ascii letters in range
-        row = str(random.randint(1,10)) #get a random integer in range
+    # Returns as a string 
+    def get_random_coordinate(self):
+        col = random.choice(string.ascii_uppercase[:10])
+        row = str(random.randint(1,10))
         
-        return col+row #return col+row
+        return col+row
 
-    def get_surrounding_coordinates(self, coordinate): #function to get surrounding coordinates
+    def get_surrounding_coordinates(self, coordinate):
 
-        col = coordinate[0] #column is letter
-        row = int(coordinate[1:]) #row is the rest
+        col = coordinate[0]
+        row = int(coordinate[1:])
 
-        valid_cols = "ABCDEFGHIJ"  # Define valid columns (A-J)
-        col_index = valid_cols.index(col) #get column index
+        # Define valid columns (A-J)
+        valid_cols = "ABCDEFGHIJ"
+        col_index = valid_cols.index(col)
 
-        row_offsets = [-1, 0, 1] # Possible surrounding row and column offsets (-1, 0, 1)
-        col_offsets = [-1, 0, 1] # Possible surrounding row and column offsets (-1, 0, 1)
+        # Possible surrounding row and column offsets (-1, 0, 1)
+        row_offsets = [-1, 0, 1]
+        col_offsets = [-1, 0, 1]
 
         # Iterate over each combination of row and column offsets
-        for r_offset in row_offsets: #iterate over rows
-            for c_offset in col_offsets: #iterate over cols
-                if abs(r_offset) ^ abs(c_offset) == False: #Skip the digaonals and the center
-                    continue #continue
+        for r_offset in row_offsets:
+            for c_offset in col_offsets:
+                #Skip the digaonals and the center
+                if abs(r_offset) ^ abs(c_offset) == False:
+                    continue
 
                 # Calculate the new row and column
-                new_row = row + r_offset #calc new row
-                new_col_index = col_index + c_offset #calc new col
+                new_row = row + r_offset
+                new_col_index = col_index + c_offset
 
                 # Check if the new row and column are valid
-                if 1 <= new_row <= 10 and 0 <= new_col_index < len(valid_cols): #if statement to check validity
-                    new_col = valid_cols[new_col_index] #seet new col
-                    self.near.append(f"{new_col}{new_row}") #append new str
+                if 1 <= new_row <= 10 and 0 <= new_col_index < len(valid_cols):
+                    new_col = valid_cols[new_col_index]
+                    self.near.append(f"{new_col}{new_row}")
     
     #returns a coordinate to attack based on the difficulty of the ai
-    def attack(self): #define attack function
-        diff = self.difficulty #extract difficulty
-        match self.difficulty: #case match block
+    def attack(self):
+        diff = self.difficulty
+        match self.difficulty:
             #finds a coordinate to shoot at based on the difficulty of it ai
-            case 0: #case 0
-                return self.get_random_coordinate()  #returns a random coordinate
-            case 1: # case 1
-                if len(self.near) > 0: #if nearby coords
-                    coor = self.near[0] #extract first index
-                    self.near = self.near[1:] #remove first index
-                    return coor #return that coordinate
-                return self.get_random_coordinate() #return random coordinate
-            case 2: # case 2
+            case 0:
+                #returns a random coordinate
+                return self.get_random_coordinate()
+            case 1:
+                if len(self.near) > 0:
+                    coor = self.near[0]
+                    self.near = self.near[1:]
+                    return coor
+                return self.get_random_coordinate()
+            case 2:
                 #returns the coordinate of the first item in the enemy coordinates
-                coord = self.enemy_coordinates[0] #get first enemy coordinate
-                self.enemy_coordinates = self.enemy_coordinates[1:] #remove first enemy coordinate
-                return string.ascii_uppercase[coord[1]]+str(coord[0] + 1) #return coordinate
+                coord = self.enemy_coordinates[0]
+                self.enemy_coordinates = self.enemy_coordinates[1:]
+                return string.ascii_uppercase[coord[1]]+str(coord[0] + 1)
             
-    def handleHit(self, coor, sunk): #function to handle hits
-        if self.difficulty == 1: #if difficulty 1
-            if sunk: # if sunk
-                self.near = [] #clear self.near
-            else: #else
+    def handleHit(self, coor, sunk):
+        if self.difficulty == 1:
+            if sunk:
+                #clear self.near
+                self.near = []
+            else:
                 #handle surrounding coor
-                self.get_surrounding_coordinates(coor) # get surrounding coordinates
-                print("I am handling coordinates") #handling coordinates
-                print(self.near) #print nearby coordinates
+                self.get_surrounding_coordinates(coor)
+                print("I am handling coordinates")
+                print(self.near)
 
+
+
+
+def main():
+    ai = Ai(1, None)
+    coord = ai.get_random_coordinate()
+    print(coord)
+
+    ai.get_surrounding_coordinates(coord)
+    print(ai.near)
+
+
+if __name__ == "__main__":
+    main()
 
 
 
