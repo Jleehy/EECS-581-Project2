@@ -114,8 +114,11 @@ from exceptions import AlreadyFiredError
 class Ai(Player):
     def __init__(self, difficulty, opponent, ships: list[Ship] = None) -> None:
         self.difficulty = difficulty #difficulty of the ai
+        self._name = "AI" # name attribute for printing player info
         self.enemy_coordinates = [] #coordinates of the oposing players ships
         
+        # hits[] = coordinates of hits
+        # near[] = valid coordinates surrounding the most recent hit
         if(difficulty == 1):
             self.hits = []
             self.near = []
@@ -137,7 +140,7 @@ class Ai(Player):
 
         self._num_alive_ships: int = len(self._ships)
 
-    # Returns as a string 
+    # Returns a string literal of a random coordinate on the board
     def get_random_coordinate(self):
         col = random.choice(string.ascii_uppercase[:10])
         row = str(random.randint(1,10))
@@ -204,20 +207,6 @@ class Ai(Player):
                 print("I am handling coordinates")
                 print(self.near)
 
-
-
-
-def main():
-    ai = Ai(1, None)
-    coord = ai.get_random_coordinate()
-    print(coord)
-
-    ai.get_surrounding_coordinates(coord)
-    print(ai.near)
-
-
-if __name__ == "__main__":
-    main()
 
 
 
