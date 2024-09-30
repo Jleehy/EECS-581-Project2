@@ -59,4 +59,10 @@
 ---
 
 **Matthew Sullivan**
+9/23/24 - 1h
+- Created ai.py, structured attributes needed for each difficulty
+- Added ultility function for generating a valid random coordinate
+- Added ulility function for storing valid surrounding coordinates of a hit
 
+9/29/24 - 1h
+- Added comments to ai.py
