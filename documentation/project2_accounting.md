@@ -44,9 +44,10 @@
 - Added functions for building ai players
 - Minor attack logic changes
 
-9/29/24 - .5h
+9/29/24 - 1h
 
 - Merged special shots in from dev
+- Some comments
 
 ---
 
