@@ -8,22 +8,19 @@ Authors: James Hurd, Joshua Lee, Will Whitehead, Trent Gould, Ky Le
 Creation date: 09/11/24
 """
 
-#used for clearing the screen, as we need to know what is we are on to send the proper control character.
-import os
 
-#used for getting passwords: https://docs.python.org/3/library/getpass.html#getpass.getpass
-from getpass import getpass
+import os      # import os for screen clearing.
+import random  # import random library for random ai functionality.
+import string  # import string for enhanced string functionality.
 
-#import player class.
-from player import Player
-from ai import Ai
-import random
-import string
+# https://docs.python.org/3/library/getpass.html#getpass.getpass
+from getpass import getpass  # import getpass to work with passwords.
 
-#import ship class.
-from ship import Ship
+from ai import Ai          # import Ai class.
+from player import Player  # import Player class.
+from ship import Ship      # import Ship class.
 
-#import exception that denotes invalid ship length.
+# import custom exceptions for ship length, coordinates, duplicate firing, and special shots.
 from exceptions import InvalidShipLengthError, InvalidCoordinatesError, AlreadyFiredError, EmptySpecialShotsError
 
 class Game:
@@ -54,159 +51,164 @@ class Game:
         
         #get player name.
         player_two_name: str = input('What\'s your name? Enter \'ai\' to play against an ai: ')
+        # if the second player is not Ai.
         if player_two_name.lower() != 'ai':
             self._player_two_pass: str = getpass('Enter your password: ')
             self._player_two: Player = Game._build_player(player_two_name, num_ships)
-            
+
+            # prompt for number of special shots to be played with
             print('================\nSetup\n================')
+            # until the user enters a valid number of special shots.
             while True:
                 try:
+                    # try to get a valid number of special shots from the user.
                     self._num_special_shots: int = int(input('How many special shots (3x3) would you like to play with (0-999): '))
                 except ValueError:
+                    # except a value error and prompt the user again.
                     print('Please input a number.')
                     continue
 
+                # if the number is outside the range [0, 999].
                 if not 0 <= self._num_special_shots <= 999:
+                    # prompt the user agina.
                     print('Please input a number between 0 and 999.')
                     continue
 
                 break
 
+            # set the number of special shots for both players.
             self._player_one.set_special_shots(self._num_special_shots)
             self._player_two.set_special_shots(self._num_special_shots)
-
+        # if the second player is Ai.
         else:
+            # prompt the user for the Ai difficulty level.
             difficulty = int(input('Enter ai difficulty level. (0 - easy, 1 - medium, 2 - hard): '))
+            # if the value is not in the range [0, 3].
             if not 0 <= difficulty <= 3:
+                # raise a value error
                 raise ValueError
+            # otherwise create the Ai player
             self._player_two: Ai = Game._build_ai_player(player_two_name, num_ships, self._player_one, difficulty)
-            #self._player_two_pass: str = ""
-
-
-        #get player password.
-
-        #build player 2 object.
 
         #this clears the screen: https://stackoverflow.com/questions/2084508/clear-the-terminal-in-python
         os.system('cls' if os.name == 'nt' else 'clear')
 
-
     @staticmethod
     def _build_ai_player(name: str, num_ships: int, opponent: Player, difficulty=0):
+        """
+        Builds an AI player with a random name, number of ships, and difficulty level.
+        """
         def generate_random_coordinate():
-            letter = random.choice(string.ascii_uppercase[:10])  # Picks a random letter from A to J
-            number = random.randint(1, 9)  # Picks a random number between 1 and 9
-            return f"{letter}{number}"
+            """
+            Generates a random coordinate.
+            """
+            letter = random.choice(string.ascii_uppercase[:10])  # picks a random letter from A to J
+            number = random.randint(1, 9)                        # picks a random number between 1 and 9
+            return f"{letter}{number}"                           # return the coordinate
         
         def get_neighbors(coordinate, distance=1):
-            # Extract the letter and number from the coordinate
-            letter = coordinate[0]
-            number = int(coordinate[1:])
+            """
+            Get the coordinates orthogonal to the specified coordinate.
+            """
+            letter = coordinate[0]        # extract the letter from the coordinate
+            number = int(coordinate[1:])  # extract the number from the coordinate
 
-            # Get all possible letters and numbers
-            letters = string.ascii_uppercase[:10]
-            letter_idx = letters.index(letter)
+            letters = string.ascii_uppercase[:10]  # get the first ten letters of the alphabet
+            letter_idx = letters.index(letter)     # get the index of the coordinate letter
 
-            # Store valid neighbors within the specified distance
-            neighbors = []
+            neighbors = []  # create a list to store neighbors of the coordinate
 
-            # Horizontal neighbors
-            for i in range(1, distance + 1):
-                if letter_idx - i >= 0:  # Left neighbor
-                    neighbors.append(f"{letters[letter_idx - i]}{number}")
-                if letter_idx + i < 10:  # Right neighbor
-                    neighbors.append(f"{letters[letter_idx + i]}{number}")
+            for i in range(1, distance + 1):                                # horizontal neighbors
+                if letter_idx - i >= 0:                                     # left neighbor
+                    neighbors.append(f"{letters[letter_idx - i]}{number}")  # add the neighbor to the list
+                if letter_idx + i < 10:                                     # right neighbor
+                    neighbors.append(f"{letters[letter_idx + i]}{number}")  # add the neighbor to the list
 
-            # Vertical neighbors
-            for i in range(1, distance + 1):
-                if number - i >= 1:  # Downward neighbor
-                    neighbors.append(f"{letter}{number - i}")
-                if number + i <= 9:  # Upward neighbor
-                    neighbors.append(f"{letter}{number + i}")
+            for i in range(1, distance + 1):                   # vertical neighbors
+                if number - i >= 1:                            # downward neighbor
+                    neighbors.append(f"{letter}{number - i}")  # add the neighbor to the list
+                if number + i <= 9:                            # upward neighbor
+                    neighbors.append(f"{letter}{number + i}")  # add the neighbor to the list
 
-            return neighbors
+            return neighbors  # return the list of neighbors
 
         def generate_random_neighbor(coordinate, distance=1):
-            neighbors = get_neighbors(coordinate, distance)
-            if neighbors:
-                return random.choice(neighbors)
-            return None
+            """
+            Get a randomly chosen coordinate orthogonol to the specified coordinate.
+            """
+            neighbors = get_neighbors(coordinate, distance)  # get all neighbors of the specified coordinate.
+            if neighbors:                                    # if the coordinate has neighbors.
+                return random.choice(neighbors)              # return a random neighbor.
+            return None                                      # otherwise, return None
 
+        # create an Ai player
         player : Ai = Ai(difficulty, opponent)
         # Initialize the ship length to 0
         ship_length: int = 0
-        # Ask the user for the coordinates of each ship
-        for _ in range(num_ships):
-            
-            ship_length += 1
 
-            while True:
+        for _ in range(num_ships):  # for each ship
+            ship_length += 1        # increment the ship length from the previous ship
 
-                #player.display_board_private()
-
+            while True:  # until there is a valid ship to place
                 try:
-                    # If the ship length is 1, only ask for one coordinate
-                    if ship_length == 1:
-                        coord_input = generate_random_coordinate()
-                        # Convert the input to a tuple of ints (row, col)
-                        start_coord = Game._parse_coordinate(coord_input)
-                        # Since it's a 1-length ship, start and end are the same
-                        end_coord = start_coord  
-                    else:
-                        start_coord_input = generate_random_coordinate()
-                        # Convert the input to a tuple of ints (row, col)
-                        start_coord = Game._parse_coordinate(start_coord_input)
+                    if ship_length == 1:                                         # if the ship length is 1, only ask for one coordinate.
+                        coord_input = generate_random_coordinate()               # get a random coordinate
+                        start_coord = Game._parse_coordinate(coord_input)        # convert the input to a tuple of ints (row, col)
+                        end_coord = start_coord                                  # since it's a 1-length ship, start and end are the same
+                    else:                                                                             # if the ship length is greater than 1
+                        start_coord_input = generate_random_coordinate()                              # get a random coordinate
+                        start_coord = Game._parse_coordinate(start_coord_input)                       # convert the input to a tuple of ints (row, col)
+                        end_coord_input = generate_random_neighbor(start_coord_input, ship_length-1)  # get the ending coordinate for the ship
+                        end_coord = Game._parse_coordinate(end_coord_input)                           # convert the input to a tuple of ints (row, col)
 
-                        # Get the ending coordinate for the ship
-                        end_coord_input = generate_random_neighbor(start_coord_input, ship_length-1)
-                        # Convert the input to a tuple of ints (row, col)
-                        end_coord = Game._parse_coordinate(end_coord_input)
-
-                    # Create a Ship object with the given coordinates
-                    ship: Ship = Ship(ship_length, start_coord, end_coord)
+                    ship: Ship = Ship(ship_length, start_coord, end_coord)  # create a Ship object with the given coordinates
                     
                     try:
-                        player.add_ship(ship)
+                        player.add_ship(ship)  # add the ship to the player
             
-                    except ValueError:
-                        # If the ship intersects another ship, ask for coordinates again
-                        print('This placement intersects another ship, please try again.')
+                    except ValueError:                                                    # if the ship intersects another ship
+                        print('This placement intersects another ship, please try again.')# ask for coordinates again
                         continue
 
-                    break
+                    break  # break out of the loop
 
-                except (InvalidShipLengthError, InvalidCoordinatesError) as e:
-                    # If the ship length is invalid or the coordinates are invalid, ask for coordinates again
-                    print(f'[ERROR] {e} Please try again.')
+                except (InvalidShipLengthError, InvalidCoordinatesError) as e:  # if the ship or coordinates are invalid
+                    print(f'[ERROR] {e} Please try again.')                     # ask for coordinates again
                     continue
 
-        return player
+        return player  # return the Ai player
 
     @staticmethod
     def _build_player(name: str, num_ships: int) -> Player:
-        """Talk to the user and initialize a player object."""
+        """
+        Talks to the user and initialize a player object.
+        """
         # Create a Player object with the given name
         player: Player = Player(name)
         # Initialize the ship length to 0
         ship_length: int = 0
         # Ask the user for the coordinates of each ship
         for _ in range(num_ships):
-            
+            # increment the ship length by one from the previous ship
             ship_length += 1
 
+            # until receiving a valid ship placement
             while True:
-
+                # display the player's private board
                 player.display_board_private()
 
                 try:
                     # If the ship length is 1, only ask for one coordinate
                     if ship_length == 1:
+                        # prompt the user for a coordinate
                         coord_input = input(f'Enter coordinate for a ship that is {ship_length} long (e.g., A1 or A,1): ').replace(' ', '').upper()
                         # Convert the input to a tuple of ints (row, col)
                         start_coord = Game._parse_coordinate(coord_input)
                         # Since it's a 1-length ship, start and end are the same
-                        end_coord = start_coord  
+                        end_coord = start_coord
+                    # if the ship length is greater than one
                     else:
+                        # prompt the user for a starting coordinate
                         start_coord_input = input(f'Enter starting coordinate for a ship that is {ship_length} long (e.g., A1 or A,1): ').replace(' ', '').upper()
                         # Convert the input to a tuple of ints (row, col)
                         start_coord = Game._parse_coordinate(start_coord_input)
@@ -220,6 +222,7 @@ class Game:
                     ship: Ship = Ship(ship_length, start_coord, end_coord)
                     
                     try:
+                        # add the ship to the player's board
                         player.add_ship(ship)
             
                     except ValueError:
@@ -234,6 +237,7 @@ class Game:
                     print(f'[ERROR] {e} Please try again.')
                     continue
 
+        # return the Player object
         return player
 
     @staticmethod
@@ -259,6 +263,7 @@ class Game:
             # If the column is not a valid letter or the row is not between 1 and 10
             raise InvalidCoordinatesError("Coordinate not on board. Please use a valid format (e.g., A1 or A,1).")
 
+        # return the coordinate
         return (row, col_num)
 
     #password checking loop
@@ -271,66 +276,62 @@ class Game:
             check: str = getpass(f'[{player.name}]: Enter your password: ')
             # Check if the password is correct
             if check == player_pass:
+                # break out of the loop if the password is correct
                 break
 
+            # let the user know the password was incorrect
             print('Incorrect! Please try again.')
 
     def loop(self) -> None:
         """Main gameplay loop. Displays menu and executes choices."""
+        # keep track of the number of turns played
         turn_count: int = 0 
-        #start with player 1
+        # start with current player as player 1 
         current_player: Player = self._player_one 
-        # start with player 2
+        # start with opponent player as player 2
         if isinstance(self._player_two, Ai):
+            # set the opponent player as Ai
             opponent_player: Ai = self._player_two
         else:
+            # set the opponent player as a human
             opponent_player: Player = self._player_two
 
         while True: #loop infinitely! (Until break is called)
-            """
-            if isinstance(current_player, Ai):
-                attack_coord = current_player.attack
-                enemy_ships_pre_attack = opponent_player._num_alive_ships
-                hit = opponent_player.take_hit(attack_coord)
-                if hit:
-                    if opponent_player._num_alive_ships < enemy_ships_pre_attack:
-                        current_player.update_after_attack(attack_coord, sink)
-                    else:
-                        current_player.update_after_attack(attack_coord, hit)
-            else:
-                everything that's already written for a human player
-
-            still need to clear the screen and switch players at the end
-            """
-            #password check
+            # if the player is human
             if not isinstance(current_player, Ai):
+                # check the password
                 self._check_pass(current_player)
         
             while True:
-                #handle turn
+                # if the player is Ai
                 if isinstance(current_player, Ai):
-                    rawcoor = current_player.attack()
-                    coor = Game._parse_coordinate(rawcoor)
+                    rawcoor = current_player.attack()  # get the Ai attack coordinate
+                    coor = Game._parse_coordinate(rawcoor)  # parse the coordinate
                     try:
-                        temp = opponent_player.num_alive_ships
-                        if opponent_player.take_hit(coor):
-                            print('Your opponent hit you!')
-                            current_player.handleHit(rawcoor, temp != opponent_player.num_alive_ships)
-                        else:
-                            print('Your opponent missed you!')
-                        input('Press ENTER to continue')
+                        temp = opponent_player.num_alive_ships  # get the number of alive opponent ships
+                        if opponent_player.take_hit(coor):  # play the attack
+                            print('Your opponent hit you!')  # if the attack hit
+                            current_player.handleHit(rawcoor, temp != opponent_player.num_alive_ships)  # handle any post-attack logic
+                        else:  # other wise
+                            print('Your opponent missed you!')  # move along
+                        input('Press ENTER to continue')  # prompt for Enter to continue
                         break
                     except (AlreadyFiredError, InvalidCoordinatesError) as e:
-                        continue
+                        continue  # handle duplicate attack and invalid coordinate errors
                 else: 
                     print(f'================\nTURN {turn_count}\n================')
+                    # if the current player has special shots left
                     if current_player.num_special_shots > 0:
+                        # print the player's options
                         print(f'[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n[3] FIRE SPECIAL SHOT ({current_player.num_special_shots}/{self._num_special_shots})\n================')
-                        valid_choices = [0, 1, 2, 3]  
+                        valid_choices = [0, 1, 2, 3]
+                    # if the current player does not have special shots left
                     else:
+                         # print the player's options
                          print('[0] CHECK YOUR BOARD\n[1] CHECK OPPONENTS BOARD\n[2] FIRE\n================')
                          valid_choices = [0, 1, 2] 
                     try:
+                        # prompt the user for an action
                         player_input: int = int(input('What would you like to do?: '))
                         
                         # Check if the input is valid based on available choices
@@ -338,6 +339,7 @@ class Game:
                             raise ValueError
                         
                     except ValueError:
+                        # if the input was invalid prompt the user again
                         print('Invalid input, please choose off of the menu.')
                         continue
 
@@ -389,7 +391,7 @@ class Game:
                                 break
                                     
                             except (AlreadyFiredError, InvalidCoordinatesError, EmptySpecialShotsError) as e:
-                                print(e)
+                                print(e)  # handle an invalid coordinate, duplicate attack, or empty special shots
 
             #check if either p1 or p2's ships are all destroyed
             #(possibly take this block and put it into its own function)
