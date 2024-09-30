@@ -37,9 +37,6 @@ class Game:
         #print welcome message.
         print('================\nWelcome Player 1\n================')
         
-        # init special shots
-        self._num_special_shots: int = 0
-
         #get player name.
         player_one_name: str = input('What\'s your name? ')
 
@@ -58,12 +55,9 @@ class Game:
         #get player name.
         player_two_name: str = input('What\'s your name? Enter \'ai\' to play against an ai: ')
         if player_two_name.lower() != 'ai':
-            #get player password.
             self._player_two_pass: str = getpass('Enter your password: ')
-            #build player 2 object.
             self._player_two: Player = Game._build_player(player_two_name, num_ships)
-            # prompt for number of special shots to be played with
-
+            
             print('================\nSetup\n================')
             while True:
                 try:
@@ -80,19 +74,25 @@ class Game:
 
             self._player_one.set_special_shots(self._num_special_shots)
             self._player_two.set_special_shots(self._num_special_shots)
+
         else:
             difficulty = int(input('Enter ai difficulty level. (0 - easy, 1 - medium, 2 - hard): '))
             if not 0 <= difficulty <= 3:
                 raise ValueError
-            self._player_two: Ai = Game._build_ai_player(player_two_name, num_ships, difficulty)
+            self._player_two: Ai = Game._build_ai_player(player_two_name, num_ships, self._player_one, difficulty)
             #self._player_two_pass: str = ""
+
+
+        #get player password.
+
+        #build player 2 object.
 
         #this clears the screen: https://stackoverflow.com/questions/2084508/clear-the-terminal-in-python
         os.system('cls' if os.name == 'nt' else 'clear')
 
-    # Builds an AI player with a random name, number of ships, and difficulty level
+
     @staticmethod
-    def _build_ai_player(name: str, num_ships: int, difficulty=0):
+    def _build_ai_player(name: str, num_ships: int, opponent: Player, difficulty=0):
         def generate_random_coordinate():
             letter = random.choice(string.ascii_uppercase[:10])  # Picks a random letter from A to J
             number = random.randint(1, 9)  # Picks a random number between 1 and 9
@@ -132,7 +132,7 @@ class Game:
                 return random.choice(neighbors)
             return None
 
-        player : Ai = Ai(difficulty)
+        player : Ai = Ai(difficulty, opponent)
         # Initialize the ship length to 0
         ship_length: int = 0
         # Ask the user for the coordinates of each ship
@@ -309,12 +309,19 @@ class Game:
             while True:
                 #handle turn
                 if isinstance(current_player, Ai):
-                    coor = Game._parse_coordinate(current_player.attack())
+                    rawcoor = current_player.attack()
+                    coor = Game._parse_coordinate(rawcoor)
                     try:
-                        temp = opponent_player.take_hit(coor)
+                        temp = opponent_player.num_alive_ships
+                        if opponent_player.take_hit(coor):
+                            print('Your opponent hit you!')
+                            current_player.handleHit(rawcoor, temp != opponent_player.num_alive_ships)
+                        else:
+                            print('Your opponent missed you!')
+                        input('Press ENTER to continue')
                         break
                     except (AlreadyFiredError, InvalidCoordinatesError) as e:
-                        print(e)#not necessary, handles random choosing same coor
+                        continue
                 else: 
                     print(f'================\nTURN {turn_count}\n================')
                     if current_player.num_special_shots > 0:
@@ -325,7 +332,7 @@ class Game:
                          valid_choices = [0, 1, 2] 
                     try:
                         player_input: int = int(input('What would you like to do?: '))
-
+                        
                         # Check if the input is valid based on available choices
                         if player_input not in valid_choices:
                             raise ValueError
@@ -351,13 +358,16 @@ class Game:
                                 coord: tuple[int, int] = Game._parse_coordinate(coord_input)
                                 
                                 # Check if the shot hit a ship
-                                print('Hit!' if opponent_player.take_hit(coord) else 'Miss!')
+                                if opponent_player.take_hit(coord):
+                                    print('Hit!') #print hit ahd call handleHit if it is a hit
+                                else:
+                                    print('Miss!') #print miss if the shot is a miss
                                 # Display the opponent's board after the shot
                                 opponent_player.display_board_public()
                                 input('Press ENTER to continue')
                                 break
                                     
-                            except (AlreadyFiredError, InvalidCoordinatesError) as e:
+                            except (AlreadyFiredError, InvalidCoordinatesError) as e: #error if already fired upon coordinate or if invalid coordinate
                                 print(e)
                         case 3:
                             try:
@@ -380,7 +390,6 @@ class Game:
                                     
                             except (AlreadyFiredError, InvalidCoordinatesError, EmptySpecialShotsError) as e:
                                 print(e)
-
 
             #check if either p1 or p2's ships are all destroyed
             #(possibly take this block and put it into its own function)
