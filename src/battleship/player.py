@@ -1,3 +1,13 @@
+'''
+Program Name: player.py
+Description: Class for a human battleship player
+Inputs: Player name and a list of ships
+Output: Results of actions performed by the player
+Code Sources: None
+Authors: James Hurd, Joshua Lee, Will Whitehead, Trent Gould, Ky Le
+Authors: Steve Gan, Sean Hammell, Jacob Leehy, Mario Simental, Matthew Sullivan
+Creation Date: 9/11/24
+'''
 from ship import Ship
 from exceptions import AlreadyFiredError
 

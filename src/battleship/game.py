@@ -5,6 +5,7 @@ Inputs: None
 Outputs: None
 Other sources for code: N/A
 Authors: James Hurd, Joshua Lee, Will Whitehead, Trent Gould, Ky Le
+Authors: Steve Gan, Sean Hammell, Jacob Leehy, Mario Simental, Matthew Sullivan
 Creation date: 09/11/24
 """
 

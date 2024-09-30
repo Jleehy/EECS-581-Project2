@@ -1,4 +1,13 @@
-# 9/23/2024
+'''
+Program Name: ai.py
+Description: Class for an Ai player with three difficulty levels that a human
+             player may choose to play against.
+Inputs: Difficulty, opponent, and list of ships
+Output: Attacks
+Code Sources: None
+Authors: Steve Gan, Sean Hammell, Jacob Leehy, Mario Simental, Matthew Sullivan
+Creation Date: 9/23/24
+'''
 
 # Easy (0) - fully random
 # Medium (1)

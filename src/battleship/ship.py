@@ -4,7 +4,12 @@ Description: Class to hold information on ships.
 Inputs: None
 Outputs: None
 Other sources for code: N/A
+<<<<<<< Updated upstream
 Authors: James Hurd, Joshua Lee, Will Whitehead, Trent Gould, Ky Le, Steve Gan, Sean Hammell, Jacob Leehy, Mario Simental, Matthew Sullivan
+=======
+Authors: James Hurd, Joshua Lee, Will Whitehead, Trent Gould, Ky Le
+Authors: Steve Gan, Sean Hammell, Jacob Leehy, Mario Simental, Matthew Sullivan
+>>>>>>> Stashed changes
 Creation date: 09/11/24
 """
 
