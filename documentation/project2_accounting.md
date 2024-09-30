@@ -33,6 +33,10 @@
 - Sketched out AI implementation based on existing code
 - Sketched out AI integration into the main game loop
 
+9/29/24 - 1.5h
+
+- Commenting
+
 ---
 
 **Jacob Leehy**
