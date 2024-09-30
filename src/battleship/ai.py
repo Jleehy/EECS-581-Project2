@@ -116,7 +116,9 @@ class Ai(Player):
         self.difficulty = difficulty #difficulty of the ai
         self.enemy_coordinates = [] #coordinates of the oposing players ships
         self._name = "AI"
-        
+
+        # For medium difficulty, the AI needs to track the most recent hit, and the surrounding coordinates of the hit
+        # self.near is an array of the surrounding coordinates and will be used for moves after there is a hit
         if(difficulty == 1):
             self.hits = []
             self.near = []
@@ -126,7 +128,8 @@ class Ai(Player):
                 for coor in ship.hull:
                     temp = coor[:2]
                     self.enemy_coordinates.append(temp)
-                    
+        
+        # If ships is None, set self._ships to an empty list            
         if ships is None:
             self._ships = []
         else:
@@ -138,15 +141,17 @@ class Ai(Player):
 
         self._num_alive_ships: int = len(self._ships)
 
-    # Returns as a string 
+    # Returns a string literal of a randomly generated coordinate
     def get_random_coordinate(self):
         col = random.choice(string.ascii_uppercase[:10])
         row = str(random.randint(1,10))
         
         return col+row
 
+    # Populates self.near[] after a ship is hit with valid surrounding coordinates, excluding diagonals
     def get_surrounding_coordinates(self, coordinate):
 
+        # Parse and cast coordinate string to extract column and row
         col = coordinate[0]
         row = int(coordinate[1:])
 
@@ -169,12 +174,12 @@ class Ai(Player):
                 new_row = row + r_offset
                 new_col_index = col_index + c_offset
 
-                # Check if the new row and column are valid
+                # Check if the new row and column are valid and append to self.near[]
                 if 1 <= new_row <= 10 and 0 <= new_col_index < len(valid_cols):
                     new_col = valid_cols[new_col_index]
                     self.near.append(f"{new_col}{new_row}")
     
-    #returns a coordinate to attack based on the difficulty of the ai
+    # returns a coordinate to attack based on the difficulty of the ai
     def attack(self):
         diff = self.difficulty
         match self.difficulty:
