@@ -11,7 +11,6 @@ class Player:
         self._name: str = name
         self.num_special_shots: int = 0
 
-        # If no ships are provided, initialize an empty list
         if ships is None:
             self._ships = []
         else:
@@ -23,25 +22,25 @@ class Player:
 
         self._num_alive_ships: int = len(self._ships)
     
-    # Getter for name
-    @property
+    @property #returns the name of the player
     def name(self) -> str:
         return self._name
 
-    # Getter for number of ships
-    @property
+    @property #returns the number of ships of the player
     def num_ships(self) -> int:
         return len(self._ships)
 
-    # Getter for number of alive ships
-    @property
+    @property #returns the number of ships still alive of the player
     def num_alive_ships(self) -> int:
         return self._num_alive_ships
 
-    # Getter for number of sunk ships
-    @property
+    @property #returns the number of ships sunk of the player
     def num_sunk_ships(self) -> int:
         return self.num_ships - self.num_alive_ships
+    
+    @property #returns the location and status of the ships of the player
+    def ships(self):
+        return self._ships 
 
     def take_hit(self, coordinate: tuple[int, int]) -> bool:
         """Take a hit at the given coordinate and update the board state."""
@@ -64,7 +63,7 @@ class Player:
                         self._num_alive_ships -= 1
                     return True
         return False
-    
+
     def take_special_hit(self, coordinate: tuple[int, int]) -> bool:
         """
         Handle a special 3x3 shot centered at `center_coord`.
@@ -104,11 +103,9 @@ class Player:
 
         return hit_anything
     
-    # Setter for number of special shots
     def set_special_shots(self, num: int) -> None:
         self.num_special_shots = num
-    
-    # Helper method to get the state of each cell for private and public boards
+
     def _get_cell_state(self, i: int, j: int, private: bool) -> str:
         """Serve as a helper method to get the state of each cell for private and public boards."""
         # Check if the cell is part of any ship
@@ -130,13 +127,11 @@ class Player:
             return 'O' # Shot at, but missed
         return '~' # Unshot cell
 
-    # Display the state of the board to the player
     def display_board_private(self) -> None:
         """Display the state of the board to the player."""
         print('    A B C D E F G H I J ') # Print top border labels.
         print('  +' + '-' * 21 + '+') # Top border
 
-        # Iterate through each row and column of the board for display
         for i in range(10):
             row: list[str] = [self._get_cell_state(i, j, private=True) for j in range(10)]
             print(f"{i+1}{' ' if i+1 != 10 else ''}| {' '.join(row)} |") # Board with side borders & side border numbers
@@ -154,7 +149,6 @@ class Player:
 
         print('  +' + '-' * 21 + '+') # Bottom border
 
-    # Add a ship to the calling player's board
     def add_ship(self, ship: Ship) -> None:
         
         #validate placement.
